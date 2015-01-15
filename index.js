@@ -150,8 +150,7 @@ function templateCache(filename, options) {
   var templateHeader = options.templateHeader || TEMPLATE_HEADER;
   var templateFooter = options.templateFooter || TEMPLATE_FOOTER;
 
-
-
+  options.cache = options.cache || DEFAULT_CACHE;
 
   /**
    * Build templateCache
@@ -163,7 +162,7 @@ function templateCache(filename, options) {
     header(templateHeader, {
       module: options.module || DEFAULT_MODULE,
       standalone: options.standalone ? ', []' : '',
-      cache : options.cache || DEFAULT_CACHE
+      cache : options.cache
     }),
     footer(templateFooter),
     wrapInModule(options.moduleSystem)
