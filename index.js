@@ -10,7 +10,7 @@ var htmlJsStr = require('js-string-escape');
  * "constants"
  */
 
-var TEMPLATE_HEADER = 'angular.module("<%= module %>"<%= standalone %>).run(["$templateCache", function($templateCache) {';
+var TEMPLATE_HEADER = 'angular.module("<%= module %>"<%= standalone %>).run(["<%= cache %>", function(<%= cache %>) {';
 var TEMPLATE_FOOTER = '}]);';
 var DEFAULT_FILENAME = 'templates.js';
 var DEFAULT_MODULE = 'templates';
@@ -32,10 +32,10 @@ var MODULE_TEMPLATES = {
  * Add files to templateCache.
  */
 
-function templateCacheFiles(root, base) {
+function templateCacheFiles(root, base, cache) {
 
   return function templateCacheFile(file, callback) {
-    var template = '$templateCache.put("<%= url %>","<%= contents %>");';
+    var template = '<%= cache %>.put("<%= url %>",\'<%= contents %>\');';
     var url;
 
     file.path = path.normalize(file.path);
@@ -65,7 +65,8 @@ function templateCacheFiles(root, base) {
     file.contents = new Buffer(gutil.template(template, {
       url: url,
       contents: htmlJsStr(file.contents),
-      file: file
+      file: file,
+      cache : cache
     }));
 
     callback(null, file);
@@ -78,7 +79,7 @@ function templateCacheFiles(root, base) {
  * templateCache a stream of files.
  */
 
-function templateCacheStream(root, base) {
+function templateCacheStream(root, base, cache) {
 
   /**
    * Set relative base
@@ -92,7 +93,7 @@ function templateCacheStream(root, base) {
    * templateCache files
    */
 
-  return es.map(templateCacheFiles(root, base));
+  return es.map(templateCacheFiles(root, base, cache));
 
 }
 
@@ -150,17 +151,19 @@ function templateCache(filename, options) {
   var templateFooter = options.templateFooter || TEMPLATE_FOOTER;
 
 
+
+
   /**
    * Build templateCache
    */
 
   return es.pipeline(
-    templateCacheStream(options.root || '', options.base),
+    templateCacheStream(options.root || '', options.base, options.cache),
     concat(filename),
     header(templateHeader, {
       module: options.module || DEFAULT_MODULE,
       standalone: options.standalone ? ', []' : '',
-      $templateCache : options.cache || DEFAULT_CACHE
+      cache : options.cache || DEFAULT_CACHE
     }),
     footer(templateFooter),
     wrapInModule(options.moduleSystem)
