@@ -14,6 +14,7 @@ var TEMPLATE_HEADER = 'angular.module("<%= module %>"<%= standalone %>).run(["$t
 var TEMPLATE_FOOTER = '}]);';
 var DEFAULT_FILENAME = 'templates.js';
 var DEFAULT_MODULE = 'templates';
+var DEFAULT_CACHE = '$templateCache';
 var MODULE_TEMPLATES = {
 
   requirejs: {
@@ -158,7 +159,8 @@ function templateCache(filename, options) {
     concat(filename),
     header(templateHeader, {
       module: options.module || DEFAULT_MODULE,
-      standalone: options.standalone ? ', []' : ''
+      standalone: options.standalone ? ', []' : '',
+      $templateCache : options.cache || DEFAULT_CACHE
     }),
     footer(templateFooter),
     wrapInModule(options.moduleSystem)
